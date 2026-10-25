@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { fetchPrograms } from './api'
+import DataErrorBanner from './components/DataErrorBanner'
 import FilterBar from './components/FilterBar'
 import ProgramCard from './components/ProgramCard'
 import { EMPTY_FILTERS, SORT_OPTIONS, isEligible, sortPrograms, type Filters, type SortKey } from './filters'
@@ -53,13 +54,14 @@ export default function App() {
     <div className="app">
       <header className="app-header">
         <h1>SBA Program Finder</h1>
-        {data && <span className="as-of">Rates as of {isoDate(data.asOf)}</span>}
+        {data?.asOf && <span className="as-of">Rates as of {isoDate(data.asOf)}</span>}
       </header>
 
       {error && <p className="error">{error}. Is the API server running?</p>}
 
       {data && (
         <>
+          <DataErrorBanner errors={data.dataErrors} />
           <FilterBar filters={filters} facets={data.facets} onChange={setFilters} />
 
           <div className="results-bar">

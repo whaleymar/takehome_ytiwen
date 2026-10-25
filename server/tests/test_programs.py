@@ -111,13 +111,71 @@ def test_valid_row_fixture_loads(tmp_path):
         {"interest_rate_min": "abc"},
         {"min_credit_score": ""},
         {"last_updated": "2026-13-45"},
+        {"last_updated": ""},
+        {"lender_name": ""},
     ],
     ids=lambda o: ",".join(f"{k}={v}" for k, v in o.items()),
 )
-def test_invalid_values_rejected_with_line_number(tmp_path, overrides):
-    path = write_csv(tmp_path, row(), row(lender_name="Bad", **overrides))
-    with pytest.raises(ValueError, match="programs.csv line 3"):
-        load_programs(path, date(2026, 1, 16), 7)
+def test_invalid_row_skipped_and_reported(tmp_path, overrides):
+    path = write_csv(tmp_path, row(), row(**{"lender_name": "Bad", **overrides}), row(lender_name="After"))
+    data = load_programs(path, date(2026, 1, 16), 7)
+
+    assert [p.lender for p in data.programs] == ["L", "After"]
+    [error] = data.data_errors
+    assert error.line == 3
+    # The message names the CSV column(s) an admin needs to fix.
+    for column in overrides:
+        assert column in error.message
+
+
+def test_error_message_is_readable(tmp_path):
+    path = write_csv(tmp_path, row(interest_rate_min="-10.6"), row(lender_name="X", min_loan_amount="300000"))
+    messages = [e.message for e in load_programs(path, date(2026, 1, 16), 7).data_errors]
+    assert messages == [
+        "interest_rate_min: Input should be greater than or equal to 0 (got '-10.6')",
+        "min_loan_amount/max_loan_amount: min (300000) is greater than max (250000)",
+    ]
+
+
+def test_multiple_problems_in_one_row_reported_together(tmp_path):
+    path = write_csv(tmp_path, row(min_credit_score="9999", turnaround_days="-1"))
+    [error] = load_programs(path, date(2026, 1, 16), 7).data_errors
+    assert "min_credit_score" in error.message and "turnaround_days" in error.message
+
+
+def test_unquoted_comma_reported(tmp_path):
+    path = write_csv(tmp_path, row(special_requirements="Requires 10%, owner injection"))
+    data = load_programs(path, date(2026, 1, 16), 7)
+    assert data.programs == []
+    assert "unquoted comma" in data.data_errors[0].message
+
+
+def test_short_row_reported(tmp_path):
+    path = write_csv(tmp_path, "L,P,10000,250000")
+    data = load_programs(path, date(2026, 1, 16), 7)
+    assert data.programs == []
+    assert data.data_errors[0].line == 2
+
+
+def test_missing_header_column_reported(tmp_path):
+    path = tmp_path / "programs.csv"
+    path.write_text(HEADER.replace("interest_rate_min,", "") + row() + "\n")
+    data = load_programs(path, date(2026, 1, 16), 7)
+    assert data.programs == []
+    assert data.as_of is None
+    assert data.data_errors[0].line == 1
+    assert "interest_rate_min" in data.data_errors[0].message
+
+
+def test_quoted_multiline_field_reports_correct_lines(tmp_path):
+    path = write_csv(
+        tmp_path,
+        row(special_requirements='"Line one\nline two"'),
+        row(lender_name="Bad", turnaround_days="-1"),
+    )
+    data = load_programs(path, date(2026, 1, 16), 7)
+    assert data.programs[0].special_requirements == "Line one\nline two"
+    assert data.data_errors[0].line == 4
 
 
 @pytest.mark.parametrize(
@@ -147,15 +205,19 @@ def test_blank_lines_skipped(tmp_path):
     assert len(load_programs(path, date(2026, 1, 16), 7).programs) == 2
 
 
-def test_duplicate_ids_rejected(tmp_path):
-    row = "L,P,1,2,600,Fair,1,5,6,12,40,All,No,,1,,1/1/2026"
-    with pytest.raises(ValueError, match="Duplicate"):
-        load_programs(write_csv(tmp_path, row, row), date(2026, 1, 1), 7)
+def test_duplicate_keeps_first_and_reports_later(tmp_path):
+    path = write_csv(tmp_path, row(turnaround_days="5"), row(turnaround_days="99"))
+    data = load_programs(path, date(2026, 1, 16), 7)
+    assert [p.turnaround_days for p in data.programs] == [5]
+    [error] = data.data_errors
+    assert error.line == 3
+    assert error.message == "Duplicate of L P on line 2"
 
 
 def test_sample_csv_loads():
     data = load_programs(DEFAULT_CSV, date(2026, 2, 8), 7)
     assert len(data.programs) == 49
+    assert data.data_errors == []
     assert data.as_of == date(2026, 2, 8)
     assert "Construction" in data.facets.business_types
 
@@ -169,5 +231,34 @@ def test_api_uses_camel_case(monkeypatch):
 
     assert body["asOf"] == "2026-02-08"
     assert body["referenceDate"] == "2026-02-08"
+    assert body["dataErrors"] == []
     first = body["programs"][0]
     assert {"programType", "loanAmount", "ratesRecentlyUpdated", "eligibleBusinessTypes"} <= first.keys()
+
+
+def test_server_starts_and_serves_valid_rows_when_csv_has_bad_rows(tmp_path, monkeypatch, caplog):
+    path = write_csv(
+        tmp_path,
+        row(lender_name="Good One"),
+        row(lender_name="Negative Rate", interest_rate_min="-1"),
+        row(lender_name="Good Two"),
+        row(lender_name="Bad Date", last_updated="13/45/2026"),
+        row(lender_name="Good One"),
+    )
+    monkeypatch.setenv("PROGRAMS_CSV", str(path))
+    monkeypatch.setenv("REFERENCE_DATE", "2026-01-16")
+    from app.main import app
+
+    with TestClient(app) as client:
+        assert client.get("/healthz").status_code == 200
+        res = client.get("/api/programs")
+
+    assert res.status_code == 200
+    body = res.json()
+    assert [p["lender"] for p in body["programs"]] == ["Good One", "Good Two"]
+    assert [(e["line"], e["message"].split(":")[0]) for e in body["dataErrors"]] == [
+        (3, "interest_rate_min"),
+        (5, "last_updated"),
+        (6, "Duplicate of Good One P on line 2"),
+    ]
+    assert "Skipped programs.csv line 3" in caplog.text

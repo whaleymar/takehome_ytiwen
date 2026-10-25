@@ -30,8 +30,15 @@ export interface Program {
   ratesRecentlyUpdated: boolean
 }
 
+export interface DataError {
+  /** Line in the source CSV (1 is the header). */
+  line: number
+  message: string
+}
+
 export interface ProgramsResponse {
-  asOf: string
+  /** null when no rows loaded. */
+  asOf: string | null
   referenceDate: string
   recentUpdateDays: number
   facets: {
@@ -40,4 +47,6 @@ export interface ProgramsResponse {
     creditTiers: CreditTier[]
   }
   programs: Program[]
+  /** Rows the server skipped because they were malformed. */
+  dataErrors: DataError[]
 }

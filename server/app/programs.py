@@ -3,15 +3,18 @@
 The CSV is parsed once at startup. Everything the frontend needs (clean
 numbers, ISO dates, enums, nulls for blanks, stable ids) is resolved here so
 the browser never has to deal with raw CSV quirks.
+
+Malformed rows are skipped and reported as data errors rather than failing
+startup, so one bad row doesn't take the whole tool down mid-call.
 """
 
 import csv
 import re
 from datetime import date, datetime, timedelta
 from pathlib import Path
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator, model_validator
 from pydantic.alias_generators import to_camel
 
 CreditTier = Literal["fair", "good", "excellent"]
@@ -20,12 +23,48 @@ Collateral = Literal["yes", "no", "varies"]
 # Ordered lowest to highest; a borrower qualifies for any tier at or below theirs.
 CREDIT_TIERS: list[CreditTier] = ["fair", "good", "excellent"]
 
+REQUIRED_COLUMNS = [
+    "lender_name",
+    "program_type",
+    "min_loan_amount",
+    "max_loan_amount",
+    "min_credit_score",
+    "credit_tier_required",
+    "min_years_in_business",
+    "interest_rate_min",
+    "interest_rate_max",
+    "max_term_months",
+    "sba_guarantee_pct",
+    "eligible_business_types",
+    "requires_collateral",
+    "max_existing_debt_ratio",
+    "turnaround_days",
+    "special_requirements",
+    "last_updated",
+]
+
+# Program field paths mapped back to the CSV columns an admin would edit.
+FIELD_COLUMNS: dict[tuple[str, ...], str] = {
+    ("lender",): "lender_name",
+    ("program_type",): "program_type",
+    ("loan_amount",): "min_loan_amount/max_loan_amount",
+    ("loan_amount", "min"): "min_loan_amount",
+    ("loan_amount", "max"): "max_loan_amount",
+    ("interest_rate",): "interest_rate_min/interest_rate_max",
+    ("interest_rate", "min"): "interest_rate_min",
+    ("interest_rate", "max"): "interest_rate_max",
+    ("credit_tier",): "credit_tier_required",
+    ("collateral",): "requires_collateral",
+    ("max_debt_ratio",): "max_existing_debt_ratio",
+}
+
 
 class ApiModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
 
 NonNegative = Annotated[float, Field(ge=0)]
+NonBlank = Annotated[str, Field(min_length=1)]
 
 
 class Range(ApiModel):
@@ -35,14 +74,14 @@ class Range(ApiModel):
     @model_validator(mode="after")
     def _ordered(self) -> "Range":
         if self.min > self.max:
-            raise ValueError(f"min ({self.min}) is greater than max ({self.max})")
+            raise ValueError(f"min ({self.min:g}) is greater than max ({self.max:g})")
         return self
 
 
 class Program(ApiModel):
     id: str
-    lender: str
-    program_type: str
+    lender: NonBlank
+    program_type: NonBlank
     loan_amount: Range
     interest_rate: Range
     min_credit_score: Annotated[int, Field(ge=300, le=850)]
@@ -57,7 +96,22 @@ class Program(ApiModel):
     turnaround_days: Annotated[int, Field(ge=0)]
     special_requirements: str | None
     last_updated: date
-    rates_recently_updated: bool
+    rates_recently_updated: bool = False
+
+    @field_validator("last_updated", mode="before")
+    @classmethod
+    def _parse_us_date(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            try:
+                return datetime.strptime(value, "%m/%d/%Y").date()
+            except ValueError:
+                raise ValueError("expected a date like 1/31/2026") from None
+        return value
+
+
+class DataError(ApiModel):
+    line: int
+    message: str
 
 
 class Facets(ApiModel):
@@ -67,72 +121,110 @@ class Facets(ApiModel):
 
 
 class ProgramsResponse(ApiModel):
-    as_of: date
+    # None when no rows loaded.
+    as_of: date | None
     reference_date: date
     recent_update_days: int
     facets: Facets
     programs: list[Program]
+    # Rows that were skipped; the frontend shows these so reps know results are incomplete.
+    data_errors: list[DataError]
 
 
 def slugify(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
-def _optional(value: str) -> str | None:
-    value = value.strip()
-    return value or None
+def _cell(row: dict[str | None, Any], column: str) -> str:
+    # Short rows leave trailing columns as None.
+    return (row.get(column) or "").strip()
 
 
-def _parse_row(row: dict[str, str], reference_date: date, recent_update_days: int) -> Program:
-    lender = row["lender_name"].strip()
-    program_type = row["program_type"].strip()
-    business_types = row["eligible_business_types"].strip()
-    debt_ratio = _optional(row["max_existing_debt_ratio"])
-    last_updated = datetime.strptime(row["last_updated"].strip(), "%m/%d/%Y").date()
-    cutoff = reference_date - timedelta(days=recent_update_days)
+def _parse_row(row: dict[str | None, Any]) -> Program:
+    extra = row.get(None)
+    if extra:
+        raise ValueError(
+            f"has {len(extra)} more value(s) than there are columns; check for an unquoted comma"
+        )
 
-    return Program(
-        id=f"{slugify(lender)}--{slugify(program_type)}",
-        lender=lender,
-        program_type=program_type,
-        loan_amount={"min": row["min_loan_amount"], "max": row["max_loan_amount"]},
-        interest_rate={"min": row["interest_rate_min"], "max": row["interest_rate_max"]},
-        min_credit_score=int(row["min_credit_score"]),
-        credit_tier=row["credit_tier_required"].strip().lower(),
-        min_years_in_business=float(row["min_years_in_business"]),
-        max_term_months=int(row["max_term_months"]),
-        sba_guarantee_pct=int(row["sba_guarantee_pct"]),
-        eligible_business_types=None if business_types.lower() == "all" else [business_types],
-        collateral=row["requires_collateral"].strip().lower(),
-        max_debt_ratio=float(debt_ratio) if debt_ratio else None,
-        turnaround_days=int(row["turnaround_days"]),
-        special_requirements=_optional(row["special_requirements"]),
-        last_updated=last_updated,
-        rates_recently_updated=cutoff <= last_updated <= reference_date,
+    lender = _cell(row, "lender_name")
+    program_type = _cell(row, "program_type")
+    business_types = _cell(row, "eligible_business_types")
+    return Program.model_validate(
+        {
+            "id": f"{slugify(lender)}--{slugify(program_type)}",
+            "lender": lender,
+            "program_type": program_type,
+            "loan_amount": {"min": _cell(row, "min_loan_amount"), "max": _cell(row, "max_loan_amount")},
+            "interest_rate": {"min": _cell(row, "interest_rate_min"), "max": _cell(row, "interest_rate_max")},
+            "min_credit_score": _cell(row, "min_credit_score"),
+            "credit_tier": _cell(row, "credit_tier_required").lower(),
+            "min_years_in_business": _cell(row, "min_years_in_business"),
+            "max_term_months": _cell(row, "max_term_months"),
+            "sba_guarantee_pct": _cell(row, "sba_guarantee_pct"),
+            "eligible_business_types": None if business_types.lower() == "all" else [business_types],
+            "collateral": _cell(row, "requires_collateral").lower(),
+            "max_debt_ratio": _cell(row, "max_existing_debt_ratio") or None,
+            "turnaround_days": _cell(row, "turnaround_days"),
+            "special_requirements": _cell(row, "special_requirements") or None,
+            "last_updated": _cell(row, "last_updated"),
+        }
     )
+
+
+def _describe(error: ValidationError) -> str:
+    parts = []
+    for e in error.errors():
+        loc = tuple(str(part) for part in e["loc"])
+        column = FIELD_COLUMNS.get(loc, ".".join(loc))
+        message = e["msg"].removeprefix("Value error, ")
+        got = f" (got {e['input']!r})" if isinstance(e.get("input"), str) else ""
+        parts.append(f"{column}: {message}{got}")
+    return "; ".join(parts)
 
 
 def load_programs(csv_path: Path, reference_date: date, recent_update_days: int) -> ProgramsResponse:
     programs: list[Program] = []
+    errors: list[DataError] = []
+    first_seen: dict[str, int] = {}
+
     with csv_path.open(newline="", encoding="utf-8-sig") as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            if not any(v.strip() for v in row.values() if v):
-                continue
-            # Fail loudly on bad data rather than show reps a wrong program.
-            try:
-                programs.append(_parse_row(row, reference_date, recent_update_days))
-            except ValueError as e:
-                raise ValueError(f"{csv_path.name} line {reader.line_num}: {e}") from e
+        missing = [c for c in REQUIRED_COLUMNS if c not in (reader.fieldnames or [])]
+        if missing:
+            errors.append(DataError(line=1, message=f"Header is missing column(s): {', '.join(missing)}"))
+        else:
+            for row in reader:
+                line = reader.line_num
+                if not any(isinstance(v, str) and v.strip() for v in row.values()):
+                    continue
+                try:
+                    program = _parse_row(row)
+                except ValidationError as e:
+                    errors.append(DataError(line=line, message=_describe(e)))
+                    continue
+                except ValueError as e:
+                    errors.append(DataError(line=line, message=f"Row {e}"))
+                    continue
 
-    ids = [p.id for p in programs]
-    duplicates = {i for i in ids if ids.count(i) > 1}
-    if duplicates:
-        raise ValueError(f"Duplicate lender/program combinations in CSV: {sorted(duplicates)}")
+                if program.id in first_seen:
+                    errors.append(
+                        DataError(
+                            line=line,
+                            message=f"Duplicate of {program.lender} {program.program_type} on line {first_seen[program.id]}",
+                        )
+                    )
+                    continue
+                first_seen[program.id] = line
+                programs.append(program)
+
+    cutoff = reference_date - timedelta(days=recent_update_days)
+    for p in programs:
+        p.rates_recently_updated = cutoff <= p.last_updated <= reference_date
 
     business_types = {t for p in programs for t in p.eligible_business_types or []}
     return ProgramsResponse(
-        as_of=max(p.last_updated for p in programs),
+        as_of=max((p.last_updated for p in programs), default=None),
         reference_date=reference_date,
         recent_update_days=recent_update_days,
         facets=Facets(
@@ -141,4 +233,5 @@ def load_programs(csv_path: Path, reference_date: date, recent_update_days: int)
             credit_tiers=CREDIT_TIERS,
         ),
         programs=programs,
+        data_errors=errors,
     )

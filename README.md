@@ -49,7 +49,7 @@ print(load_programs(DEFAULT_CSV, date(2026, 2, 8), 7).model_dump_json(by_alias=T
 " > ../web/src/__fixtures__/programs.json
 ```
 
-The server refuses to start if any CSV row is malformed (negative rates, a min above its max, a credit score outside 300–850, an unknown tier, etc.). The error names the line, so a bad row can't quietly show reps the wrong program.
+Malformed CSV rows (negative rates, a min above its max, a credit score outside 300–850, an unknown tier, an unquoted comma, a duplicate lender/program, etc.) are skipped rather than stopping the server. Each one is logged at startup and returned in `dataErrors`, and the frontend shows them in a banner telling reps to contact an admin. Once there's an upload flow, bad data should be rejected at upload time instead (see open question 17).
 
 ## API
 
@@ -57,7 +57,7 @@ The server refuses to start if any CSV row is malformed (negative rates, a min a
 
 ```jsonc
 {
-  "asOf": "2026-02-08",          // most recent last_updated in the data
+  "asOf": "2026-02-08",          // most recent last_updated in the data; null if no rows loaded
   "referenceDate": "2026-02-08", // the "today" used for ratesRecentlyUpdated
   "recentUpdateDays": 7,
   "facets": { "businessTypes": [...], "programTypes": [...], "creditTiers": ["fair", "good", "excellent"] },
@@ -79,7 +79,10 @@ The server refuses to start if any CSV row is malformed (negative rates, a min a
     "specialRequirements": "No recent bankruptcies (7 years)",
     "lastUpdated": "2026-01-16",
     "ratesRecentlyUpdated": false
-  }]
+  }],
+  "dataErrors": [                // rows that were skipped; empty when the CSV is clean
+    { "line": 5, "message": "interest_rate_min: Input should be greater than or equal to 0 (got '-10.6')" }
+  ]
 }
 ```
 

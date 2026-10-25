@@ -1,3 +1,4 @@
+import logging
 import os
 from contextlib import asynccontextmanager
 from datetime import date
@@ -9,6 +10,8 @@ from fastapi.middleware.gzip import GZipMiddleware
 from app.programs import ProgramsResponse, load_programs
 
 DEFAULT_CSV = Path(__file__).resolve().parents[2] / "data" / "programs.csv"
+
+logger = logging.getLogger("uvicorn.error")
 
 
 def _settings() -> tuple[Path, date, int]:
@@ -22,7 +25,11 @@ def _settings() -> tuple[Path, date, int]:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.programs = load_programs(*_settings())
+    csv_path, reference_date, recent_update_days = _settings()
+    data = load_programs(csv_path, reference_date, recent_update_days)
+    for e in data.data_errors:
+        logger.warning("Skipped %s line %d: %s", csv_path.name, e.line, e.message)
+    app.state.programs = data
     yield
 
 

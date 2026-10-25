@@ -42,3 +42,4 @@ For now the app trusts the structured columns over `special_requirements` notes.
 14. **Rate history:** would reps use "rate went from X to Y" information, or is a "New rates" badge for the last 7 days enough?
 15. **Sharing with borrowers:** what should a borrower see when a rep shares a comparison? Should the shared view be a frozen copy (the rates the borrower was quoted) or always show current rates? Should internal-only details be hidden?
 16. **Manager reporting:** what counts as a rep "recommending" a program: opening it, sharing it, or something else?
+17. **Updating lender data:** how will the CSV be updated each month? Who does it (a manager, ops, anyone on the team)? Should uploading require a login or approval? The plan is for an upload to be rejected immediately with line-by-line errors if any row is malformed. For now the app skips bad rows and shows a banner telling reps to contact an admin. Who should that admin be?

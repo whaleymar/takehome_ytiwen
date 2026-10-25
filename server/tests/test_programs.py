@@ -1,10 +1,11 @@
+import json
 from datetime import date
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import DEFAULT_CSV
+from app.main import DEFAULT_CSV, _settings
 from app.programs import load_programs
 
 HEADER = (
@@ -113,6 +114,14 @@ def test_valid_row_fixture_loads(tmp_path):
         {"last_updated": "2026-13-45"},
         {"last_updated": ""},
         {"lender_name": ""},
+        {"eligible_business_types": ""},
+        {"eligible_business_types": "   "},
+        {"max_loan_amount": "inf"},
+        {"interest_rate_max": "inf"},
+        {"interest_rate_min": "-inf"},
+        {"max_existing_debt_ratio": "inf"},
+        {"min_years_in_business": "nan"},
+        {"interest_rate_min": "nan"},
     ],
     ids=lambda o: ",".join(f"{k}={v}" for k, v in o.items()),
 )
@@ -141,6 +150,55 @@ def test_multiple_problems_in_one_row_reported_together(tmp_path):
     path = write_csv(tmp_path, row(min_credit_score="9999", turnaround_days="-1"))
     [error] = load_programs(path, date(2026, 1, 16), 7).data_errors
     assert "min_credit_score" in error.message and "turnaround_days" in error.message
+
+
+@pytest.mark.parametrize("trailing", [",", ",,", ", ,  "])
+def test_trailing_blank_cells_ignored(tmp_path, trailing):
+    data = load_programs(write_csv(tmp_path, row() + trailing), date(2026, 1, 16), 7)
+    assert len(data.programs) == 1
+    assert data.data_errors == []
+
+
+def test_extra_value_after_trailing_blanks_reported(tmp_path):
+    data = load_programs(write_csv(tmp_path, row() + ",,oops"), date(2026, 1, 16), 7)
+    assert data.programs == []
+    assert "unquoted comma" in data.data_errors[0].message
+
+
+def test_blank_business_type_does_not_reach_facets(tmp_path):
+    path = write_csv(tmp_path, row(eligible_business_types=""), row(lender_name="Other", eligible_business_types="Retail"))
+    data = load_programs(path, date(2026, 1, 16), 7)
+    assert data.facets.business_types == ["Retail"]
+    assert data.data_errors[0].message.startswith("eligible_business_types:")
+
+
+def test_inf_never_serializes_as_null(tmp_path):
+    path = write_csv(tmp_path, row(max_loan_amount="inf"), row(lender_name="Ok"))
+    body = json.loads(load_programs(path, date(2026, 1, 16), 7).model_dump_json(by_alias=True))
+    assert [p["lender"] for p in body["programs"]] == ["Ok"]
+    assert body["dataErrors"][0]["message"].startswith("max_loan_amount:")
+
+
+def test_utf8_bom_header_loads(tmp_path):
+    path = tmp_path / "programs.csv"
+    path.write_bytes(("\ufeff" + HEADER + row() + "\n").encode("utf-8"))
+    data = load_programs(path, date(2026, 1, 16), 7)
+    assert len(data.programs) == 1
+    assert data.data_errors == []
+
+
+def test_facets_are_sorted_and_tiers_ordered(tmp_path):
+    path = write_csv(
+        tmp_path,
+        row(lender_name="A", program_type="SBA Express", eligible_business_types="Retail"),
+        row(lender_name="B", program_type="504 Loan", eligible_business_types="Construction"),
+        row(lender_name="C", program_type="7(a) Standard", eligible_business_types="All"),
+    )
+    facets = load_programs(path, date(2026, 1, 16), 7).facets
+    assert facets.business_types == ["Construction", "Retail"]
+    assert facets.program_types == ["504 Loan", "7(a) Standard", "SBA Express"]
+    # The tier buttons render in this order, lowest to highest.
+    assert facets.credit_tiers == ["fair", "good", "excellent"]
 
 
 def test_unquoted_comma_reported(tmp_path):
@@ -193,6 +251,8 @@ def test_quoted_multiline_field_reports_correct_lines(tmp_path):
         {"turnaround_days": "0"},
         {"credit_tier_required": " good "},
         {"requires_collateral": "YES"},
+        {"eligible_business_types": "all"},
+        {"eligible_business_types": " ALL "},
     ],
     ids=lambda o: ",".join(f"{k}={v}" for k, v in o.items()),
 )
@@ -222,7 +282,43 @@ def test_sample_csv_loads():
     assert "Construction" in data.facets.business_types
 
 
+FIXTURE = Path(__file__).resolve().parents[2] / "web" / "src" / "__fixtures__" / "programs.json"
+
+
+def test_frontend_fixture_matches_api_output():
+    """The frontend tests run against this fixture; if it drifts from the real API output
+    (CSV edited, a field renamed), they'd keep passing while the app breaks. Regenerate
+    it with the command in the README."""
+    actual = json.loads(load_programs(DEFAULT_CSV, date(2026, 2, 8), 7).model_dump_json(by_alias=True))
+    assert json.loads(FIXTURE.read_text()) == actual
+
+
+def test_settings_defaults(monkeypatch):
+    for var in ("PROGRAMS_CSV", "REFERENCE_DATE", "RECENT_UPDATE_DAYS"):
+        monkeypatch.delenv(var, raising=False)
+    assert _settings() == (DEFAULT_CSV, date.today(), 7)
+
+
+def test_settings_from_env(monkeypatch, tmp_path):
+    monkeypatch.setenv("PROGRAMS_CSV", str(tmp_path / "x.csv"))
+    monkeypatch.setenv("REFERENCE_DATE", "2026-02-08")
+    monkeypatch.setenv("RECENT_UPDATE_DAYS", "14")
+    assert _settings() == (tmp_path / "x.csv", date(2026, 2, 8), 14)
+
+
+def test_api_response_is_gzipped(monkeypatch):
+    monkeypatch.delenv("PROGRAMS_CSV", raising=False)
+    from app.main import app
+
+    with TestClient(app) as client:
+        res = client.get("/api/programs", headers={"Accept-Encoding": "gzip"})
+
+    assert res.status_code == 200
+    assert res.headers["content-encoding"] == "gzip"
+
+
 def test_api_uses_camel_case(monkeypatch):
+    monkeypatch.delenv("PROGRAMS_CSV", raising=False)
     monkeypatch.setenv("REFERENCE_DATE", "2026-02-08")
     from app.main import app
 

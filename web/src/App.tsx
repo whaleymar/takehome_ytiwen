@@ -9,20 +9,43 @@ import ProgramCard from './components/ProgramCard'
 import { EMPTY_FILTERS, SORT_OPTIONS, isEligible, sortPrograms, type Filters, type SortKey } from './filters'
 import { isoDate } from './format'
 import type { Program, ProgramsResponse } from './types'
-import { readState, withCompareIds, writeState, type AppState } from './urlState'
+import { readState, sanitizeState, withCompareIds, writeState, type AppState } from './urlState'
+
+/** Reads state from the URL, cleans it against the data if loaded, and rewrites the URL to match. */
+function loadUrlState(data: ProgramsResponse | null): AppState {
+  const raw = readState(window.location.search)
+  const state = data ? sanitizeState(raw, data) : raw
+  const search = writeState(state)
+  if (search !== window.location.search) window.history.replaceState(null, '', window.location.pathname + search)
+  return state
+}
 
 export default function App() {
   const [data, setData] = useState<ProgramsResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [state, setState] = useState<AppState>(() => readState(window.location.search))
   const { filters, sort, openId, compareIds, view } = state
+  // Bumped when filters change from outside the filter bar (Back/Forward, the
+  // empty-state Clear button) so its text inputs reset to the new values.
+  const [filterBarKey, setFilterBarKey] = useState(0)
+  const dataRef = useRef<ProgramsResponse | null>(null)
 
   useEffect(() => {
-    fetchPrograms().then(setData, (e: Error) => setError(e.message))
+    fetchPrograms().then(
+      (d) => {
+        dataRef.current = d
+        setState(loadUrlState(d))
+        setData(d)
+      },
+      (e: Error) => setError(e.message),
+    )
   }, [])
 
   useEffect(() => {
-    const onPop = () => setState(readState(window.location.search))
+    const onPop = () => {
+      setState(loadUrlState(dataRef.current))
+      setFilterBarKey((k) => k + 1)
+    }
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
@@ -37,6 +60,10 @@ export default function App() {
   }
 
   const setFilters = (f: Filters) => update({ ...state, filters: f })
+  const clearFilters = () => {
+    setFilters(EMPTY_FILTERS)
+    setFilterBarKey((k) => k + 1)
+  }
   const setSort = (s: SortKey) => update({ ...state, sort: s })
   const toggleOpen = (id: string) => update({ ...state, openId: openId === id ? null : id }, true)
 
@@ -55,7 +82,7 @@ export default function App() {
     [data, filters, sort],
   )
 
-  // Ids from the URL that aren't in the data (e.g. a program removed from the CSV) are dropped.
+  // compareIds are already cleaned against the data once it loads; this just resolves them.
   const compared = useMemo(() => {
     const byId = new Map(data?.programs.map((p) => [p.id, p]))
     return compareIds.map((id) => byId.get(id)).filter((p): p is Program => p !== undefined)
@@ -86,7 +113,7 @@ export default function App() {
       {data && (
         <>
           <DataErrorBanner errors={data.dataErrors} />
-          <FilterBar filters={filters} facets={data.facets} onChange={setFilters} sticky={!showComparison} />
+          <FilterBar key={filterBarKey} filters={filters} facets={data.facets} onChange={setFilters} sticky={!showComparison} />
 
           {showComparison ? (
             <ComparisonView
@@ -116,7 +143,7 @@ export default function App() {
               {visible.length === 0 ? (
                 <div className="empty">
                   <p>No programs match these details.</p>
-                  <button type="button" className="link-button" onClick={() => setFilters(EMPTY_FILTERS)}>
+                  <button type="button" className="link-button" onClick={clearFilters}>
                     Clear all filters
                   </button>
                 </div>

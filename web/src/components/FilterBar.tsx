@@ -1,4 +1,4 @@
-import { useEffect, useState, type InputHTMLAttributes } from 'react'
+import { useState, type InputHTMLAttributes } from 'react'
 import { hasActiveFilters, parseAmount, parseScore, parseYears, EMPTY_FILTERS, type Filters } from '../filters'
 import { capitalize, moneyFull } from '../format'
 import type { ProgramsResponse } from '../types'
@@ -14,6 +14,16 @@ interface Props {
 export default function FilterBar({ filters, facets, onChange, sticky = true }: Props) {
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch })
 
+  // NumberFields keep the rep's raw text, so changes made elsewhere reset them by
+  // remounting via key: Clear all resets every field, a tier click just the score.
+  // (Changes from outside the bar, like Back/Forward, remount the whole bar.)
+  const [clears, setClears] = useState(0)
+  const [tierClicks, setTierClicks] = useState(0)
+  const clearAll = () => {
+    onChange(EMPTY_FILTERS)
+    setClears((n) => n + 1)
+  }
+
   const toggleProgramType = (type: string) =>
     set({
       programTypes: filters.programTypes.includes(type)
@@ -27,6 +37,7 @@ export default function FilterBar({ filters, facets, onChange, sticky = true }: 
         <label className="field">
           <span className="field-label">Loan amount</span>
           <NumberField
+            key={clears}
             value={filters.amount}
             parse={parseAmount}
             onValue={(amount) => set({ amount })}
@@ -56,6 +67,7 @@ export default function FilterBar({ filters, facets, onChange, sticky = true }: 
         <label className="field field-narrow">
           <span className="field-label">Years in business</span>
           <NumberField
+            key={clears}
             value={filters.yearsInBusiness}
             parse={parseYears}
             onValue={(yearsInBusiness) => set({ yearsInBusiness })}
@@ -76,9 +88,10 @@ export default function FilterBar({ filters, facets, onChange, sticky = true }: 
                   key={tier}
                   type="button"
                   aria-pressed={filters.creditTier === tier}
-                  onClick={() =>
+                  onClick={() => {
                     set({ creditTier: filters.creditTier === tier ? null : tier, creditScore: null })
-                  }
+                    setTierClicks((n) => n + 1)
+                  }}
                 >
                   {capitalize(tier)}
                 </button>
@@ -86,6 +99,7 @@ export default function FilterBar({ filters, facets, onChange, sticky = true }: 
             </div>
             <span className="or">or</span>
             <NumberField
+              key={`${clears}-${tierClicks}`}
               className="score-input"
               value={filters.creditScore}
               parse={parseScore}
@@ -117,7 +131,7 @@ export default function FilterBar({ filters, facets, onChange, sticky = true }: 
           ))}
         </div>
         {hasActiveFilters(filters) && (
-          <button type="button" className="link-button" onClick={() => onChange(EMPTY_FILTERS)}>
+          <button type="button" className="link-button" onClick={clearAll}>
             Clear all
           </button>
         )}
@@ -134,15 +148,11 @@ interface NumberFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, '
 
 /**
  * Text input that keeps the rep's raw typing (e.g. "1." or "250k") while
- * reporting the parsed number upward on every keystroke.
+ * reporting the parsed number upward on every keystroke. `value` only seeds the
+ * text; remount it with a new key to reset it.
  */
 function NumberField({ value, parse, onValue, ...inputProps }: NumberFieldProps) {
   const [text, setText] = useState(value === null ? '' : String(value))
-
-  // Resync when the value changes from outside (Clear all, Back button, tier click).
-  useEffect(() => {
-    setText((current) => (parse(current) === value ? current : value === null ? '' : String(value)))
-  }, [value, parse])
 
   const invalid = text.trim() !== '' && parse(text) === null
 

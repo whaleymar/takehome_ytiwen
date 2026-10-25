@@ -2,6 +2,9 @@ const compactUsd = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   notation: 'compact',
+  // Currency defaults to 2 minimum decimals, which some engines apply to compact
+  // notation ("$10.00K"); set it so every browser shows "$10K" and "$5.5M".
+  minimumFractionDigits: 0,
   maximumFractionDigits: 2,
 })
 

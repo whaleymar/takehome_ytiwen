@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { MAX_COMPARE, toggleCompareId } from './compare'
 import { EMPTY_FILTERS, type Filters } from './filters'
-import { DEFAULT_SORT, readState, withCompareIds, writeState, type AppState } from './urlState'
+import { DEFAULT_SORT, readState, sanitizeState, withCompareIds, writeState, type AppState } from './urlState'
 
 const EMPTY_STATE: AppState = { filters: EMPTY_FILTERS, sort: DEFAULT_SORT, openId: null, compareIds: [], view: 'list' }
 const f = (overrides: Partial<Filters>): Filters => ({ ...EMPTY_FILTERS, ...overrides })
@@ -194,5 +195,98 @@ describe('writeState', () => {
   it('round-trips values that need escaping', () => {
     const state: AppState = { ...EMPTY_STATE, filters: f({ businessType: 'A&B / C=D', programTypes: ['7(a) Small Loan'] }) }
     expect(readState(writeState(state))).toEqual(state)
+  })
+})
+
+describe('writeState param names', () => {
+  // Shared links depend on these exact names; renaming any breaks links already sent.
+  it('writes every param with its stable name', () => {
+    const state: AppState = {
+      filters: f({ amount: 250_000, businessType: 'Retail', yearsInBusiness: 2, creditScore: 700, programTypes: ['504 Loan', 'SBA Express'] }),
+      sort: 'turnaround',
+      openId: 'x--y',
+      compareIds: ['a', 'b'],
+      view: 'compare',
+    }
+    expect(writeState(state)).toBe(
+      '?amount=250000&business=Retail&years=2&score=700&program=504+Loan&program=SBA+Express&sort=turnaround&open=x--y&compare=a&compare=b&view=compare',
+    )
+  })
+
+  it('writes tier when there is no score', () => {
+    expect(writeState({ ...EMPTY_STATE, filters: f({ creditTier: 'excellent' }) })).toBe('?tier=excellent')
+  })
+})
+
+describe('sanitizeState', () => {
+  const data = {
+    facets: {
+      businessTypes: ['Manufacturing', 'Restaurant/Food Service'],
+      programTypes: ['504 Loan', '7(a) Small Loan'],
+      creditTiers: ['fair', 'good', 'excellent'] as const,
+    },
+    programs: [{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'd' }],
+  } as unknown as Parameters<typeof sanitizeState>[1]
+
+  const clean = (state: Partial<AppState>, filters: Partial<Filters> = {}) =>
+    sanitizeState({ ...EMPTY_STATE, ...state, filters: f(filters) }, data)
+
+  it('leaves valid state unchanged', () => {
+    const state: AppState = {
+      filters: f({ businessType: 'Manufacturing', programTypes: ['504 Loan'], amount: 1 }),
+      sort: 'term',
+      openId: 'a',
+      compareIds: ['a', 'b'],
+      view: 'compare',
+    }
+    expect(sanitizeState(state, data)).toEqual(state)
+  })
+
+  it('drops an unknown business type', () => {
+    expect(clean({}, { businessType: 'Bakery' }).filters.businessType).toBeNull()
+  })
+
+  it('corrects business type case to the real value', () => {
+    expect(clean({}, { businessType: 'manufacturing' }).filters.businessType).toBe('Manufacturing')
+  })
+
+  it('drops unknown program types, corrects case, and dedupes', () => {
+    expect(clean({}, { programTypes: ['7a', '504 loan', '504 Loan', '7(A) small loan'] }).filters.programTypes).toEqual([
+      '504 Loan',
+      '7(a) Small Loan',
+    ])
+  })
+
+  it('drops compare ids that are not in the data, keeping order', () => {
+    expect(clean({ compareIds: ['gone', 'b', 'a'] }).compareIds).toEqual(['b', 'a'])
+  })
+
+  it('returns to the list when fewer than 2 known compare ids remain', () => {
+    expect(clean({ compareIds: ['a', 'gone'], view: 'compare' })).toMatchObject({ compareIds: ['a'], view: 'list' })
+  })
+
+  it('keeps the comparison when 2 known ids remain', () => {
+    expect(clean({ compareIds: ['a', 'gone', 'b'], view: 'compare' })).toMatchObject({ compareIds: ['a', 'b'], view: 'compare' })
+  })
+
+  it('drops an open id that is not in the data', () => {
+    expect(clean({ openId: 'gone' }).openId).toBeNull()
+  })
+
+  // Regressions from code review: stale ids used to count toward the limit and view state.
+  it('stale ids no longer fill the comparison', () => {
+    const { compareIds } = clean({ compareIds: ['gone', 'a', 'b'] })
+    expect(compareIds.length).toBeLessThan(MAX_COMPARE)
+    expect(toggleCompareId(compareIds, 'c')).toEqual(['a', 'b', 'c'])
+  })
+
+  it('removing a column after stale ids are dropped returns to the list and pushes', () => {
+    const state = clean({ compareIds: ['a', 'b', 'gone'], view: 'compare' })
+    expect(withCompareIds(state, ['a'])).toMatchObject({ next: { view: 'list' }, push: true })
+  })
+
+  it('ticking a program on the list never opens the comparison', () => {
+    const state = clean({ compareIds: ['a', 'gone'], view: 'compare' })
+    expect(withCompareIds(state, ['a', 'c']).next.view).toBe('list')
   })
 })

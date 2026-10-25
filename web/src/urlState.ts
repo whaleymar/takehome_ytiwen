@@ -9,7 +9,7 @@ import {
   type SortKey,
 } from './filters'
 import { MAX_COMPARE } from './compare'
-import type { CreditTier } from './types'
+import type { CreditTier, ProgramsResponse } from './types'
 
 export interface AppState {
   filters: Filters
@@ -49,6 +49,38 @@ export function readState(search: string): AppState {
     openId: text('open'),
     compareIds,
     view: text('view') === 'compare' && compareIds.length >= 2 ? 'compare' : 'list',
+  }
+}
+
+/**
+ * Reconciles state read from a URL with the loaded data. Links can outlive the
+ * data (a program removed from the CSV) or be hand-edited, and an unknown value
+ * would silently filter results while the controls show nothing selected. So:
+ * business and program types are matched case-insensitively to the real ones and
+ * dropped if unknown, and compare/open ids that aren't in the data are dropped.
+ */
+export function sanitizeState(state: AppState, data: Pick<ProgramsResponse, 'facets' | 'programs'>): AppState {
+  const canonical = (options: string[]) => {
+    const byLower = new Map(options.map((o) => [o.toLowerCase(), o]))
+    return (value: string) => byLower.get(value.toLowerCase()) ?? null
+  }
+  const businessType = canonical(data.facets.businessTypes)
+  const programType = canonical(data.facets.programTypes)
+  const ids = new Set(data.programs.map((p) => p.id))
+
+  const compareIds = state.compareIds.filter((id) => ids.has(id))
+  return {
+    ...state,
+    filters: {
+      ...state.filters,
+      businessType: state.filters.businessType === null ? null : businessType(state.filters.businessType),
+      programTypes: [
+        ...new Set(state.filters.programTypes.map(programType).filter((t): t is string => t !== null)),
+      ],
+    },
+    openId: state.openId !== null && ids.has(state.openId) ? state.openId : null,
+    compareIds,
+    view: compareIds.length < 2 ? 'list' : state.view,
   }
 }
 

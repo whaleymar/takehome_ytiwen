@@ -3,7 +3,7 @@
 // out from the raw CSV separately rather than with this code.
 import { describe, expect, it } from 'vitest'
 import fixture from './__fixtures__/programs.json'
-import { EMPTY_FILTERS, isEligible, type Filters } from './filters'
+import { EMPTY_FILTERS, isEligible, sortPrograms, type Filters, type SortKey } from './filters'
 import type { ProgramsResponse } from './types'
 
 const { programs } = fixture as ProgramsResponse
@@ -11,15 +11,59 @@ const { programs } = fixture as ProgramsResponse
 const matching = (overrides: Partial<Filters>) =>
   programs.filter((p) => isEligible(p, { ...EMPTY_FILTERS, ...overrides })).map((p) => p.id)
 
+const sorted = (overrides: Partial<Filters>, sort: SortKey) =>
+  sortPrograms(programs.filter((p) => isEligible(p, { ...EMPTY_FILTERS, ...overrides })), sort).map((p) => p.id)
+
+const RESTAURANT = { amount: 250_000, businessType: 'Restaurant/Food Service', yearsInBusiness: 2, creditTier: 'good' } as const
+
 describe('sample data scenarios', () => {
   it('shows all 49 programs with no filters', () => {
     expect(matching({})).toHaveLength(49)
   })
 
   it('restaurant, $250K, 2 years, good credit', () => {
-    expect(
-      matching({ amount: 250_000, businessType: 'Restaurant/Food Service', yearsInBusiness: 2, creditTier: 'good' }),
-    ).toHaveLength(22)
+    expect(matching(RESTAURANT)).toEqual([
+      'first-national-bank--community-advantage',
+      'first-national-bank--sba-express',
+      'first-national-bank--7-a-small-loan',
+      'heritage-credit-union--sba-express',
+      'summit-lending-group--7-a-standard',
+      'coastal-capital--7-a-standard',
+      'coastal-capital--community-advantage',
+      'coastal-capital--7-a-small-loan',
+      'coastal-capital--504-loan',
+      'midwest-business-finance--504-loan',
+      'liberty-sba-lending--sba-express',
+      'evergreen-business-capital--504-loan',
+      'evergreen-business-capital--community-advantage',
+      'keystone-community-bank--7-a-small-loan',
+      'keystone-community-bank--7-a-standard',
+      'blueridge-lending-partners--sba-express',
+      'gateway-commercial-finance--7-a-small-loan',
+      'gateway-commercial-finance--sba-express',
+      'sterling-business-lending--sba-express',
+      'sterling-business-lending--7-a-small-loan',
+      'frontier-capital-group--7-a-small-loan',
+      'frontier-capital-group--sba-express',
+    ])
+  })
+
+  it('restaurant scenario sorted by lowest rate', () => {
+    expect(sorted(RESTAURANT, 'rate').slice(0, 5)).toEqual([
+      'midwest-business-finance--504-loan',
+      'evergreen-business-capital--504-loan',
+      'coastal-capital--504-loan',
+      'keystone-community-bank--7-a-standard',
+      'sterling-business-lending--7-a-small-loan',
+    ])
+  })
+
+  it('restaurant scenario sorted by fastest turnaround breaks 10-day ties on rate', () => {
+    expect(sorted(RESTAURANT, 'turnaround').slice(0, 3)).toEqual([
+      'blueridge-lending-partners--sba-express',
+      'heritage-credit-union--sba-express',
+      'liberty-sba-lending--sba-express',
+    ])
   })
 
   it('fair credit only qualifies for Community Advantage programs', () => {
@@ -64,7 +108,18 @@ describe('sample data scenarios', () => {
   })
 
   it('the smallest and largest loan amounts sit on range bounds', () => {
-    expect(matching({ amount: 10_000 })).toHaveLength(10)
+    expect(matching({ amount: 10_000 })).toEqual([
+      'first-national-bank--community-advantage',
+      'pacific-commerce-bank--community-advantage',
+      'heritage-credit-union--sba-express',
+      'summit-lending-group--community-advantage',
+      'summit-lending-group--sba-express',
+      'coastal-capital--community-advantage',
+      'evergreen-business-capital--community-advantage',
+      'atlas-financial-services--sba-express',
+      'gateway-commercial-finance--sba-express',
+      'sterling-business-lending--community-advantage',
+    ])
     expect(matching({ amount: 5_500_000 })).toEqual([
       'summit-lending-group--504-loan',
       'coastal-capital--504-loan',
@@ -74,7 +129,7 @@ describe('sample data scenarios', () => {
 
   it('an unknown business type only matches all-types programs', () => {
     const ids = matching({ businessType: 'Agriculture' })
-    expect(ids.length).toBeGreaterThan(0)
+    expect(ids).toHaveLength(19)
     for (const id of ids) {
       expect(programs.find((p) => p.id === id)!.eligibleBusinessTypes).toBeNull()
     }

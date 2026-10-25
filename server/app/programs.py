@@ -60,7 +60,8 @@ FIELD_COLUMNS: dict[tuple[str, ...], str] = {
 
 
 class ApiModel(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    # inf/nan would serialize to JSON null and break the frontend's math.
+    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True, allow_inf_nan=False)
 
 
 NonNegative = Annotated[float, Field(ge=0)]
@@ -90,7 +91,7 @@ class Program(ApiModel):
     max_term_months: Annotated[int, Field(gt=0)]
     sba_guarantee_pct: Annotated[int, Field(ge=0, le=100)]
     # None means the program accepts all business types.
-    eligible_business_types: list[str] | None
+    eligible_business_types: list[NonBlank] | None
     collateral: Collateral
     max_debt_ratio: Annotated[float, Field(ge=0)] | None
     turnaround_days: Annotated[int, Field(ge=0)]
@@ -141,7 +142,8 @@ def _cell(row: dict[str | None, Any], column: str) -> str:
 
 
 def _parse_row(row: dict[str | None, Any]) -> Program:
-    extra = row.get(None)
+    # Spreadsheet exports often add trailing commas; only non-blank extra values signal misaligned columns.
+    extra = [v for v in row.get(None) or [] if v.strip()]
     if extra:
         raise ValueError(
             f"has {len(extra)} more value(s) than there are columns; check for an unquoted comma"
@@ -175,7 +177,8 @@ def _parse_row(row: dict[str | None, Any]) -> Program:
 def _describe(error: ValidationError) -> str:
     parts = []
     for e in error.errors():
-        loc = tuple(str(part) for part in e["loc"])
+        # Drop list indexes (eligible_business_types.0) so paths map to CSV columns.
+        loc = tuple(str(part) for part in e["loc"] if not isinstance(part, int))
         column = FIELD_COLUMNS.get(loc, ".".join(loc))
         message = e["msg"].removeprefix("Value error, ")
         got = f" (got {e['input']!r})" if isinstance(e.get("input"), str) else ""

@@ -20,12 +20,17 @@ function render(ps: Program[], filters: Filters = EMPTY_FILTERS) {
   const html = renderToStaticMarkup(<ComparisonView programs={ps} filters={filters} onRemove={() => {}} onBack={() => {}} />)
   const doc = new DOMParser().parseFromString(html, 'text/html')
   const rows = [...doc.querySelectorAll('tbody tr')].filter((tr) => tr.querySelector('th[scope="row"]'))
+  const cells = (label: string) => [...rows.find((tr) => tr.querySelector('th')!.textContent === label)!.querySelectorAll('td')]
   /** For a row label, the index of each highlighted column. */
-  const bestIn = (label: string) => {
-    const row = rows.find((tr) => tr.querySelector('th')!.textContent === label)!
-    return [...row.querySelectorAll('td')].flatMap((td, i) => (td.classList.contains('is-best') ? [i] : []))
-  }
-  return { html, doc, bestIn }
+  const bestIn = (label: string) => cells(label).flatMap((td, i) => (td.classList.contains('is-best') ? [i] : []))
+  /** For a row label, each column's visible text (screen-reader-only text excluded). */
+  const textIn = (label: string) =>
+    cells(label).map((td) => {
+      const copy = td.cloneNode(true) as Element
+      copy.querySelectorAll('.sr-only').forEach((e) => e.remove())
+      return copy.textContent
+    })
+  return { html, doc, bestIn, textIn }
 }
 
 describe('ComparisonView', () => {
@@ -42,6 +47,15 @@ describe('ComparisonView', () => {
     expect(bestIn('Turnaround')).toEqual([1])
     expect(bestIn('Min credit score')).toEqual([2])
     expect(bestIn('Collateral required')).toEqual([2])
+    expect(bestIn('SBA guarantee')).toEqual([2])
+    expect(bestIn('Min years in business')).toEqual([2])
+  })
+
+  it('never highlights a missing debt ratio', () => {
+    // Midwest 45%, Atlas 55%, Pacific not specified.
+    const { bestIn, textIn } = render([midwest, atlas, pacific])
+    expect(bestIn('Max existing debt ratio')).toEqual([1])
+    expect(textIn('Max existing debt ratio')).toEqual(['45%', '55%', 'Not specified'])
   })
 
   it('highlights ties and skips rows where every value is equal', () => {
@@ -73,9 +87,30 @@ describe('ComparisonView', () => {
   })
 
   it('shows special requirements and placeholders for missing values', () => {
-    const { html } = render([midwest, atlas])
-    expect(html).toContain('Owner must have 20%+ equity stake')
-    expect(html).toContain('None')
+    const { textIn } = render([midwest, atlas, pacific])
+    expect(textIn('Special requirements')).toEqual(['Owner must have 20%+ equity stake', 'None', 'Franchise must be SBA-approved'])
+  })
+
+  it('formats each row', () => {
+    const { textIn } = render([midwest, atlas])
+    expect(textIn('Interest rate')).toEqual(['5.5% – 6.7%', '10.2% – 11.9%'])
+    expect(textIn('Max term')).toEqual(['20 yrs (240 mo)', '7 yrs (84 mo)'])
+    expect(textIn('Loan amount')).toEqual(['$125,000 – $5,000,000', '$10,000 – $350,000'])
+    expect(textIn('Eligible businesses')).toEqual(['All types', 'Healthcare only'])
+    expect(textIn('Rates last updated')).toEqual(['Feb 2, 2026', 'Jan 25, 2026'])
+  })
+
+  it('shows the New rates badge in the header only for recently updated programs', () => {
+    const { doc } = render([midwest, atlas])
+    const badges = [...doc.querySelectorAll('thead th')].map((th) => th.querySelector('.badge-new') !== null)
+    expect(badges).toEqual([midwest.ratesRecentlyUpdated, atlas.ratesRecentlyUpdated])
+    expect(badges).toContain(true)
+  })
+
+  it('flags mismatches from a program type filter alone', () => {
+    const { doc } = render([midwest, atlas], { ...EMPTY_FILTERS, programTypes: ['504 Loan'] })
+    const tags = [...doc.querySelectorAll('thead th')].map((th) => th.querySelector('.badge-mismatch') !== null)
+    expect(tags).toEqual([false, true])
   })
 
   it('gives each remove button an accessible name', () => {

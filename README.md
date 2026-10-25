@@ -46,7 +46,7 @@ cd server && uv run pytest
 cd web && npm test
 ```
 
-The frontend scenario tests (`web/src/scenarios.test.ts`) run against `web/src/__fixtures__/programs.json`, a copy of the API response for the sample CSV. If `data/programs.csv` changes, regenerate it with the command below, then update the expected results in those tests:
+Frontend tests run against `web/src/__fixtures__/programs.json`, a copy of the API response for the sample CSV. `server/tests` checks that the fixture still matches the real API output, and `web/src/contract.test.ts` checks it has exactly the fields in `web/src/types.ts`, so drift on either side fails a test. If `data/programs.csv` changes, regenerate the fixture with the command below, then update the expected results in `web/src/scenarios.test.ts`:
 
 ```sh
 cd server && uv run python -c "
@@ -57,7 +57,7 @@ print(load_programs(DEFAULT_CSV, date(2026, 2, 8), 7).model_dump_json(by_alias=T
 " > ../web/src/__fixtures__/programs.json
 ```
 
-Malformed CSV rows (negative rates, a min above its max, a credit score outside 300–850, an unknown tier, an unquoted comma, a duplicate lender/program, etc.) are skipped rather than stopping the server. Each one is logged at startup and returned in `dataErrors`, and the frontend shows them in a banner telling reps to contact an admin. Once there's an upload flow, bad data should be rejected at upload time instead (see open question 17).
+Malformed CSV rows (negative or infinite numbers, a min above its max, a credit score outside 300–850, an unknown tier, a blank business type, an unquoted comma, a duplicate lender/program, etc.) are skipped rather than stopping the server. Each one is logged at startup and returned in `dataErrors`, and the frontend shows them in a banner telling reps to contact an admin. Trailing blank cells (e.g. a trailing comma from a spreadsheet export) are ignored. Once there's an upload flow, bad data should be rejected at upload time instead (see open question 17).
 
 ## API
 

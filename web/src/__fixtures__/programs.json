@@ -1,0 +1,1314 @@
+{
+ "asOf": "2026-02-08",
+ "referenceDate": "2026-02-08",
+ "recentUpdateDays": 7,
+ "facets": {
+  "businessTypes": [
+   "Construction",
+   "Healthcare",
+   "Manufacturing",
+   "Professional Services",
+   "Restaurant/Food Service",
+   "Retail"
+  ],
+  "programTypes": [
+   "504 Loan",
+   "7(a) Small Loan",
+   "7(a) Standard",
+   "Community Advantage",
+   "SBA Express"
+  ],
+  "creditTiers": [
+   "fair",
+   "good",
+   "excellent"
+  ]
+ },
+ "programs": [
+  {
+   "id": "first-national-bank--community-advantage",
+   "lender": "First National Bank",
+   "programType": "Community Advantage",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 11.0,
+    "max": 13.6
+   },
+   "minCreditScore": 620,
+   "creditTier": "fair",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": null,
+   "collateral": "varies",
+   "maxDebtRatio": 0.5,
+   "turnaroundDays": 23,
+   "specialRequirements": "No recent bankruptcies (7 years)",
+   "lastUpdated": "2026-01-16",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "first-national-bank--sba-express",
+   "lender": "First National Bank",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 350000.0
+   },
+   "interestRate": {
+    "min": 11.4,
+    "max": 12.5
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": null,
+   "collateral": "no",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 13,
+   "specialRequirements": "Requires 10% owner injection",
+   "lastUpdated": "2026-01-02",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "first-national-bank--504-loan",
+   "lender": "First National Bank",
+   "programType": "504 Loan",
+   "loanAmount": {
+    "min": 250000.0,
+    "max": 5000000.0
+   },
+   "interestRate": {
+    "min": 7.0,
+    "max": 7.7
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 240,
+   "sbaGuaranteePct": 40,
+   "eligibleBusinessTypes": [
+    "Manufacturing"
+   ],
+   "collateral": "yes",
+   "maxDebtRatio": 0.5,
+   "turnaroundDays": 73,
+   "specialRequirements": "No recent bankruptcies (7 years)",
+   "lastUpdated": "2026-01-23",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "first-national-bank--7-a-small-loan",
+   "lender": "First National Bank",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 30000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 10.6,
+    "max": 12.6
+   },
+   "minCreditScore": 640,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Restaurant/Food Service"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 20,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-31",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "pacific-commerce-bank--community-advantage",
+   "lender": "Pacific Commerce Bank",
+   "programType": "Community Advantage",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 11.1,
+    "max": 12.8
+   },
+   "minCreditScore": 620,
+   "creditTier": "fair",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Manufacturing"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": 0.4,
+   "turnaroundDays": 42,
+   "specialRequirements": "Must be in business at least 6 months before applying",
+   "lastUpdated": "2026-01-12",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "pacific-commerce-bank--7-a-standard",
+   "lender": "Pacific Commerce Bank",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 150000.0,
+    "max": 5000000.0
+   },
+   "interestRate": {
+    "min": 9.9,
+    "max": 11.6
+   },
+   "minCreditScore": 660,
+   "creditTier": "good",
+   "minYearsInBusiness": 3.0,
+   "maxTermMonths": 300,
+   "sbaGuaranteePct": 75,
+   "eligibleBusinessTypes": [
+    "Professional Services"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 51,
+   "specialRequirements": "Requires 10% owner injection",
+   "lastUpdated": "2026-01-28",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "pacific-commerce-bank--7-a-small-loan",
+   "lender": "Pacific Commerce Bank",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 350000.0
+   },
+   "interestRate": {
+    "min": 11.1,
+    "max": 12.2
+   },
+   "minCreditScore": 640,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Construction"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": null,
+   "turnaroundDays": 19,
+   "specialRequirements": "Franchise must be SBA-approved",
+   "lastUpdated": "2026-01-27",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "heritage-credit-union--7-a-standard",
+   "lender": "Heritage Credit Union",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 5000000.0
+   },
+   "interestRate": {
+    "min": 9.0,
+    "max": 10.7
+   },
+   "minCreditScore": 660,
+   "creditTier": "good",
+   "minYearsInBusiness": 3.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Restaurant/Food Service"
+   ],
+   "collateral": "yes",
+   "maxDebtRatio": null,
+   "turnaroundDays": 57,
+   "specialRequirements": "Must be in business at least 6 months before applying",
+   "lastUpdated": "2026-01-23",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "heritage-credit-union--7-a-small-loan",
+   "lender": "Heritage Credit Union",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 30000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 9.2,
+    "max": 10.8
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Retail"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 19,
+   "specialRequirements": "Franchise must be SBA-approved",
+   "lastUpdated": "2026-02-03",
+   "ratesRecentlyUpdated": true
+  },
+  {
+   "id": "heritage-credit-union--sba-express",
+   "lender": "Heritage Credit Union",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 500000.0
+   },
+   "interestRate": {
+    "min": 10.3,
+    "max": 11.4
+   },
+   "minCreditScore": 650,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": null,
+   "collateral": "no",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 10,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-23",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "heritage-credit-union--504-loan",
+   "lender": "Heritage Credit Union",
+   "programType": "504 Loan",
+   "loanAmount": {
+    "min": 125000.0,
+    "max": 5000000.0
+   },
+   "interestRate": {
+    "min": 6.3,
+    "max": 7.7
+   },
+   "minCreditScore": 700,
+   "creditTier": "good",
+   "minYearsInBusiness": 3.0,
+   "maxTermMonths": 300,
+   "sbaGuaranteePct": 40,
+   "eligibleBusinessTypes": [
+    "Retail"
+   ],
+   "collateral": "yes",
+   "maxDebtRatio": 0.4,
+   "turnaroundDays": 52,
+   "specialRequirements": null,
+   "lastUpdated": "2026-02-03",
+   "ratesRecentlyUpdated": true
+  },
+  {
+   "id": "summit-lending-group--504-loan",
+   "lender": "Summit Lending Group",
+   "programType": "504 Loan",
+   "loanAmount": {
+    "min": 250000.0,
+    "max": 5500000.0
+   },
+   "interestRate": {
+    "min": 6.0,
+    "max": 7.5
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 3.0,
+   "maxTermMonths": 300,
+   "sbaGuaranteePct": 40,
+   "eligibleBusinessTypes": null,
+   "collateral": "yes",
+   "maxDebtRatio": null,
+   "turnaroundDays": 61,
+   "specialRequirements": "Must demonstrate positive cash flow",
+   "lastUpdated": "2026-01-14",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "summit-lending-group--community-advantage",
+   "lender": "Summit Lending Group",
+   "programType": "Community Advantage",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 350000.0
+   },
+   "interestRate": {
+    "min": 10.4,
+    "max": 12.1
+   },
+   "minCreditScore": 620,
+   "creditTier": "fair",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Manufacturing"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.5,
+   "turnaroundDays": 30,
+   "specialRequirements": "Real estate purchase only",
+   "lastUpdated": "2026-02-07",
+   "ratesRecentlyUpdated": true
+  },
+  {
+   "id": "summit-lending-group--sba-express",
+   "lender": "Summit Lending Group",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 500000.0
+   },
+   "interestRate": {
+    "min": 12.3,
+    "max": 13.9
+   },
+   "minCreditScore": 650,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": [
+    "Manufacturing"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 6,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-27",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "summit-lending-group--7-a-standard",
+   "lender": "Summit Lending Group",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 150000.0,
+    "max": 3000000.0
+   },
+   "interestRate": {
+    "min": 9.8,
+    "max": 11.7
+   },
+   "minCreditScore": 660,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 180,
+   "sbaGuaranteePct": 75,
+   "eligibleBusinessTypes": [
+    "Restaurant/Food Service"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": null,
+   "turnaroundDays": 46,
+   "specialRequirements": "Must be in business at least 6 months before applying",
+   "lastUpdated": "2026-02-04",
+   "ratesRecentlyUpdated": true
+  },
+  {
+   "id": "coastal-capital--7-a-standard",
+   "lender": "Coastal Capital",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 2000000.0
+   },
+   "interestRate": {
+    "min": 10.3,
+    "max": 11.5
+   },
+   "minCreditScore": 660,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": null,
+   "collateral": "yes",
+   "maxDebtRatio": null,
+   "turnaroundDays": 53,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-25",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "coastal-capital--community-advantage",
+   "lender": "Coastal Capital",
+   "programType": "Community Advantage",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 350000.0
+   },
+   "interestRate": {
+    "min": 12.4,
+    "max": 13.9
+   },
+   "minCreditScore": 620,
+   "creditTier": "fair",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Restaurant/Food Service"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.5,
+   "turnaroundDays": 45,
+   "specialRequirements": "Must be in business at least 6 months before applying",
+   "lastUpdated": "2026-01-03",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "coastal-capital--7-a-small-loan",
+   "lender": "Coastal Capital",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 11.5,
+    "max": 12.9
+   },
+   "minCreditScore": 640,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Restaurant/Food Service"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.4,
+   "turnaroundDays": 15,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-29",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "coastal-capital--504-loan",
+   "lender": "Coastal Capital",
+   "programType": "504 Loan",
+   "loanAmount": {
+    "min": 250000.0,
+    "max": 5500000.0
+   },
+   "interestRate": {
+    "min": 6.4,
+    "max": 7.8
+   },
+   "minCreditScore": 700,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 240,
+   "sbaGuaranteePct": 40,
+   "eligibleBusinessTypes": null,
+   "collateral": "yes",
+   "maxDebtRatio": 0.4,
+   "turnaroundDays": 68,
+   "specialRequirements": "Owner-occupied real estate only",
+   "lastUpdated": "2026-01-15",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "midwest-business-finance--sba-express",
+   "lender": "Midwest Business Finance",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 500000.0
+   },
+   "interestRate": {
+    "min": 9.6,
+    "max": 11.4
+   },
+   "minCreditScore": 650,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": [
+    "Construction"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": null,
+   "turnaroundDays": 14,
+   "specialRequirements": "Requires 10% owner injection",
+   "lastUpdated": "2026-01-22",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "midwest-business-finance--504-loan",
+   "lender": "Midwest Business Finance",
+   "programType": "504 Loan",
+   "loanAmount": {
+    "min": 125000.0,
+    "max": 5000000.0
+   },
+   "interestRate": {
+    "min": 5.5,
+    "max": 6.7
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 240,
+   "sbaGuaranteePct": 40,
+   "eligibleBusinessTypes": null,
+   "collateral": "yes",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 82,
+   "specialRequirements": "Owner must have 20%+ equity stake",
+   "lastUpdated": "2026-02-02",
+   "ratesRecentlyUpdated": true
+  },
+  {
+   "id": "liberty-sba-lending--sba-express",
+   "lender": "Liberty SBA Lending",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 500000.0
+   },
+   "interestRate": {
+    "min": 11.5,
+    "max": 12.9
+   },
+   "minCreditScore": 650,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": null,
+   "collateral": "no",
+   "maxDebtRatio": null,
+   "turnaroundDays": 10,
+   "specialRequirements": "Requires 10% owner injection",
+   "lastUpdated": "2026-01-20",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "liberty-sba-lending--7-a-small-loan",
+   "lender": "Liberty SBA Lending",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 10.7,
+    "max": 12.6
+   },
+   "minCreditScore": 660,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Construction"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": 0.5,
+   "turnaroundDays": 24,
+   "specialRequirements": "Owner must have 20%+ equity stake",
+   "lastUpdated": "2026-01-06",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "pinnacle-funding-corp--7-a-standard",
+   "lender": "Pinnacle Funding Corp",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 100000.0,
+    "max": 2000000.0
+   },
+   "interestRate": {
+    "min": 9.2,
+    "max": 10.5
+   },
+   "minCreditScore": 700,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 75,
+   "eligibleBusinessTypes": [
+    "Construction"
+   ],
+   "collateral": "yes",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 50,
+   "specialRequirements": "No recent bankruptcies (7 years)",
+   "lastUpdated": "2026-01-15",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "pinnacle-funding-corp--7-a-small-loan",
+   "lender": "Pinnacle Funding Corp",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 350000.0
+   },
+   "interestRate": {
+    "min": 10.5,
+    "max": 12.2
+   },
+   "minCreditScore": 660,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Construction"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 26,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-25",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "evergreen-business-capital--504-loan",
+   "lender": "Evergreen Business Capital",
+   "programType": "504 Loan",
+   "loanAmount": {
+    "min": 125000.0,
+    "max": 5000000.0
+   },
+   "interestRate": {
+    "min": 5.9,
+    "max": 6.8
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 300,
+   "sbaGuaranteePct": 40,
+   "eligibleBusinessTypes": null,
+   "collateral": "yes",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 58,
+   "specialRequirements": "Cannot be used for refinancing",
+   "lastUpdated": "2026-01-05",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "evergreen-business-capital--7-a-small-loan",
+   "lender": "Evergreen Business Capital",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 350000.0
+   },
+   "interestRate": {
+    "min": 9.9,
+    "max": 11.5
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Construction"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 15,
+   "specialRequirements": "Franchise must be SBA-approved",
+   "lastUpdated": "2026-01-15",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "evergreen-business-capital--community-advantage",
+   "lender": "Evergreen Business Capital",
+   "programType": "Community Advantage",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 12.3,
+    "max": 14.0
+   },
+   "minCreditScore": 600,
+   "creditTier": "fair",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Restaurant/Food Service"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 41,
+   "specialRequirements": "Must be in business at least 6 months before applying",
+   "lastUpdated": "2026-01-17",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "evergreen-business-capital--7-a-standard",
+   "lender": "Evergreen Business Capital",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 150000.0,
+    "max": 2000000.0
+   },
+   "interestRate": {
+    "min": 9.6,
+    "max": 10.7
+   },
+   "minCreditScore": 700,
+   "creditTier": "good",
+   "minYearsInBusiness": 3.0,
+   "maxTermMonths": 180,
+   "sbaGuaranteePct": 75,
+   "eligibleBusinessTypes": null,
+   "collateral": "varies",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 39,
+   "specialRequirements": "Must demonstrate positive cash flow",
+   "lastUpdated": "2026-01-01",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "atlas-financial-services--504-loan",
+   "lender": "Atlas Financial Services",
+   "programType": "504 Loan",
+   "loanAmount": {
+    "min": 125000.0,
+    "max": 5500000.0
+   },
+   "interestRate": {
+    "min": 7.3,
+    "max": 8.0
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 3.0,
+   "maxTermMonths": 300,
+   "sbaGuaranteePct": 40,
+   "eligibleBusinessTypes": [
+    "Professional Services"
+   ],
+   "collateral": "yes",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 65,
+   "specialRequirements": "Must demonstrate positive cash flow",
+   "lastUpdated": "2026-01-03",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "atlas-financial-services--sba-express",
+   "lender": "Atlas Financial Services",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 350000.0
+   },
+   "interestRate": {
+    "min": 10.2,
+    "max": 11.9
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": [
+    "Healthcare"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 7,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-25",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "keystone-community-bank--7-a-small-loan",
+   "lender": "Keystone Community Bank",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 350000.0
+   },
+   "interestRate": {
+    "min": 10.9,
+    "max": 12.9
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Restaurant/Food Service"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 17,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-14",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "keystone-community-bank--7-a-standard",
+   "lender": "Keystone Community Bank",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 150000.0,
+    "max": 3000000.0
+   },
+   "interestRate": {
+    "min": 8.6,
+    "max": 10.7
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 300,
+   "sbaGuaranteePct": 75,
+   "eligibleBusinessTypes": null,
+   "collateral": "varies",
+   "maxDebtRatio": 0.5,
+   "turnaroundDays": 48,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-27",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "keystone-community-bank--community-advantage",
+   "lender": "Keystone Community Bank",
+   "programType": "Community Advantage",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 10.0,
+    "max": 12.9
+   },
+   "minCreditScore": 640,
+   "creditTier": "fair",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Construction"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.4,
+   "turnaroundDays": 23,
+   "specialRequirements": "Requires business plan for startups",
+   "lastUpdated": "2026-02-06",
+   "ratesRecentlyUpdated": true
+  },
+  {
+   "id": "keystone-community-bank--sba-express",
+   "lender": "Keystone Community Bank",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 500000.0
+   },
+   "interestRate": {
+    "min": 10.6,
+    "max": 12.4
+   },
+   "minCreditScore": 650,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": [
+    "Manufacturing"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.4,
+   "turnaroundDays": 12,
+   "specialRequirements": "Franchise must be SBA-approved",
+   "lastUpdated": "2026-01-22",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "blueridge-lending-partners--7-a-standard",
+   "lender": "BlueRidge Lending Partners",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 100000.0,
+    "max": 2000000.0
+   },
+   "interestRate": {
+    "min": 10.0,
+    "max": 12.5
+   },
+   "minCreditScore": 660,
+   "creditTier": "good",
+   "minYearsInBusiness": 3.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 75,
+   "eligibleBusinessTypes": null,
+   "collateral": "yes",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 55,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-02",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "blueridge-lending-partners--sba-express",
+   "lender": "BlueRidge Lending Partners",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 500000.0
+   },
+   "interestRate": {
+    "min": 11.7,
+    "max": 13.2
+   },
+   "minCreditScore": 650,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": null,
+   "collateral": "no",
+   "maxDebtRatio": null,
+   "turnaroundDays": 5,
+   "specialRequirements": "Owner must have 20%+ equity stake",
+   "lastUpdated": "2026-01-29",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "gateway-commercial-finance--7-a-standard",
+   "lender": "Gateway Commercial Finance",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 5000000.0
+   },
+   "interestRate": {
+    "min": 8.5,
+    "max": 10.0
+   },
+   "minCreditScore": 700,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 300,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Healthcare"
+   ],
+   "collateral": "yes",
+   "maxDebtRatio": 0.5,
+   "turnaroundDays": 57,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-16",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "gateway-commercial-finance--7-a-small-loan",
+   "lender": "Gateway Commercial Finance",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 30000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 9.6,
+    "max": 10.6
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": null,
+   "collateral": "varies",
+   "maxDebtRatio": null,
+   "turnaroundDays": 25,
+   "specialRequirements": "Real estate purchase only",
+   "lastUpdated": "2026-01-24",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "gateway-commercial-finance--sba-express",
+   "lender": "Gateway Commercial Finance",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 500000.0
+   },
+   "interestRate": {
+    "min": 11.7,
+    "max": 13.4
+   },
+   "minCreditScore": 650,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": null,
+   "collateral": "varies",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 10,
+   "specialRequirements": "Owner-occupied real estate only",
+   "lastUpdated": "2026-01-25",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "gateway-commercial-finance--504-loan",
+   "lender": "Gateway Commercial Finance",
+   "programType": "504 Loan",
+   "loanAmount": {
+    "min": 125000.0,
+    "max": 5000000.0
+   },
+   "interestRate": {
+    "min": 6.5,
+    "max": 7.6
+   },
+   "minCreditScore": 700,
+   "creditTier": "good",
+   "minYearsInBusiness": 3.0,
+   "maxTermMonths": 300,
+   "sbaGuaranteePct": 40,
+   "eligibleBusinessTypes": null,
+   "collateral": "yes",
+   "maxDebtRatio": 0.4,
+   "turnaroundDays": 48,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-28",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "sterling-business-lending--sba-express",
+   "lender": "Sterling Business Lending",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 500000.0
+   },
+   "interestRate": {
+    "min": 12.1,
+    "max": 13.4
+   },
+   "minCreditScore": 650,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": null,
+   "collateral": "varies",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 12,
+   "specialRequirements": "Must demonstrate positive cash flow",
+   "lastUpdated": "2026-02-08",
+   "ratesRecentlyUpdated": true
+  },
+  {
+   "id": "sterling-business-lending--7-a-small-loan",
+   "lender": "Sterling Business Lending",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 9.4,
+    "max": 11.0
+   },
+   "minCreditScore": 660,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": null,
+   "collateral": "no",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 23,
+   "specialRequirements": "Requires 10% owner injection",
+   "lastUpdated": "2026-01-25",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "sterling-business-lending--community-advantage",
+   "lender": "Sterling Business Lending",
+   "programType": "Community Advantage",
+   "loanAmount": {
+    "min": 10000.0,
+    "max": 350000.0
+   },
+   "interestRate": {
+    "min": 11.5,
+    "max": 14.5
+   },
+   "minCreditScore": 620,
+   "creditTier": "fair",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Construction"
+   ],
+   "collateral": "no",
+   "maxDebtRatio": 0.4,
+   "turnaroundDays": 43,
+   "specialRequirements": "Requires business plan for startups",
+   "lastUpdated": "2026-01-19",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "sterling-business-lending--7-a-standard",
+   "lender": "Sterling Business Lending",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 2000000.0
+   },
+   "interestRate": {
+    "min": 10.1,
+    "max": 11.9
+   },
+   "minCreditScore": 700,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 75,
+   "eligibleBusinessTypes": [
+    "Healthcare"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": 0.5,
+   "turnaroundDays": 57,
+   "specialRequirements": "Must be in business at least 6 months before applying",
+   "lastUpdated": "2026-01-19",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "frontier-capital-group--7-a-standard",
+   "lender": "Frontier Capital Group",
+   "programType": "7(a) Standard",
+   "loanAmount": {
+    "min": 150000.0,
+    "max": 2000000.0
+   },
+   "interestRate": {
+    "min": 8.5,
+    "max": 9.6
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 3.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": [
+    "Professional Services"
+   ],
+   "collateral": "yes",
+   "maxDebtRatio": 0.4,
+   "turnaroundDays": 45,
+   "specialRequirements": "Owner-occupied real estate only",
+   "lastUpdated": "2026-01-01",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "frontier-capital-group--7-a-small-loan",
+   "lender": "Frontier Capital Group",
+   "programType": "7(a) Small Loan",
+   "loanAmount": {
+    "min": 50000.0,
+    "max": 250000.0
+   },
+   "interestRate": {
+    "min": 9.5,
+    "max": 11.4
+   },
+   "minCreditScore": 660,
+   "creditTier": "good",
+   "minYearsInBusiness": 1.0,
+   "maxTermMonths": 84,
+   "sbaGuaranteePct": 85,
+   "eligibleBusinessTypes": null,
+   "collateral": "varies",
+   "maxDebtRatio": 0.5,
+   "turnaroundDays": 21,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-19",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "frontier-capital-group--sba-express",
+   "lender": "Frontier Capital Group",
+   "programType": "SBA Express",
+   "loanAmount": {
+    "min": 25000.0,
+    "max": 500000.0
+   },
+   "interestRate": {
+    "min": 10.1,
+    "max": 11.8
+   },
+   "minCreditScore": 650,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 120,
+   "sbaGuaranteePct": 50,
+   "eligibleBusinessTypes": [
+    "Restaurant/Food Service"
+   ],
+   "collateral": "varies",
+   "maxDebtRatio": 0.45,
+   "turnaroundDays": 14,
+   "specialRequirements": "Cannot be used for refinancing",
+   "lastUpdated": "2026-01-01",
+   "ratesRecentlyUpdated": false
+  },
+  {
+   "id": "frontier-capital-group--504-loan",
+   "lender": "Frontier Capital Group",
+   "programType": "504 Loan",
+   "loanAmount": {
+    "min": 250000.0,
+    "max": 5000000.0
+   },
+   "interestRate": {
+    "min": 6.0,
+    "max": 7.5
+   },
+   "minCreditScore": 680,
+   "creditTier": "good",
+   "minYearsInBusiness": 2.0,
+   "maxTermMonths": 240,
+   "sbaGuaranteePct": 40,
+   "eligibleBusinessTypes": [
+    "Healthcare"
+   ],
+   "collateral": "yes",
+   "maxDebtRatio": 0.55,
+   "turnaroundDays": 49,
+   "specialRequirements": null,
+   "lastUpdated": "2026-01-26",
+   "ratesRecentlyUpdated": false
+  }
+ ]
+}

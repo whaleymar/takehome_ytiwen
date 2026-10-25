@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { EMPTY_FILTERS, type Filters } from './filters'
-import { DEFAULT_SORT, readState, writeState, type AppState } from './urlState'
+import { DEFAULT_SORT, readState, withCompareIds, writeState, type AppState } from './urlState'
 
 const EMPTY_STATE: AppState = { filters: EMPTY_FILTERS, sort: DEFAULT_SORT, openId: null, compareIds: [], view: 'list' }
 const f = (overrides: Partial<Filters>): Filters => ({ ...EMPTY_FILTERS, ...overrides })
@@ -125,6 +125,43 @@ describe('comparison params', () => {
 
   it('writes selection without view while on the list', () => {
     expect(writeState({ ...EMPTY_STATE, compareIds: ['a', 'b'] })).toBe('?compare=a&compare=b')
+  })
+})
+
+describe('withCompareIds', () => {
+  const comparing: AppState = { ...EMPTY_STATE, compareIds: ['a', 'b', 'c'], view: 'compare' }
+
+  it('stays in the comparison while 2+ programs remain, replacing history', () => {
+    expect(withCompareIds(comparing, ['a', 'b'])).toEqual({
+      next: { ...comparing, compareIds: ['a', 'b'] },
+      push: false,
+    })
+  })
+
+  it('returns to the list below 2 programs, pushing history so Back restores the comparison', () => {
+    const twoUp: AppState = { ...comparing, compareIds: ['a', 'b'] }
+    const { next, push } = withCompareIds(twoUp, ['a'])
+    expect(next).toEqual({ ...twoUp, compareIds: ['a'], view: 'list' })
+    expect(push).toBe(true)
+    // The entry left behind is still the full comparison.
+    expect(readState(writeState(twoUp)).view).toBe('compare')
+  })
+
+  it('replaces history when ticking programs on the list', () => {
+    expect(withCompareIds({ ...EMPTY_STATE, compareIds: ['a'] }, ['a', 'b'])).toEqual({
+      next: { ...EMPTY_STATE, compareIds: ['a', 'b'] },
+      push: false,
+    })
+  })
+
+  it('replaces history when clearing from the list', () => {
+    expect(withCompareIds({ ...EMPTY_STATE, compareIds: ['a', 'b'] }, []).push).toBe(false)
+  })
+
+  it('keeps other state untouched', () => {
+    const state: AppState = { ...comparing, sort: 'term', openId: 'x', filters: { ...EMPTY_FILTERS, amount: 5 } }
+    const { next } = withCompareIds(state, ['a', 'b'])
+    expect(next).toEqual({ ...state, compareIds: ['a', 'b'] })
   })
 })
 

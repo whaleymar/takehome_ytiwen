@@ -123,7 +123,17 @@ export default function ComparisonView({ programs, filters, onRemove, onBack }: 
               {programs.map((p) => (
                 <th key={p.id} scope="col">
                   <div className="comparison-head">
-                    <span className="lender">{p.lender}</span>
+                    <div className="comparison-head-top">
+                      <span className="lender">{p.lender}</span>
+                      <button
+                        type="button"
+                        className="link-button remove-button"
+                        aria-label={`Remove ${p.lender} ${p.programType} from comparison`}
+                        onClick={() => onRemove(p.id)}
+                      >
+                        Remove
+                      </button>
+                    </div>
                     <span className="program-type">{p.programType}</span>
                     <div className="comparison-tags">
                       {p.ratesRecentlyUpdated && <span className="badge-new">New rates</span>}
@@ -133,14 +143,6 @@ export default function ComparisonView({ programs, filters, onRemove, onBack }: 
                         </span>
                       )}
                     </div>
-                    <button
-                      type="button"
-                      className="link-button remove-button"
-                      aria-label={`Remove ${p.lender} ${p.programType} from comparison`}
-                      onClick={() => onRemove(p.id)}
-                    >
-                      Remove
-                    </button>
                   </div>
                 </th>
               ))}

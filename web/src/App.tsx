@@ -9,7 +9,7 @@ import ProgramCard from './components/ProgramCard'
 import { EMPTY_FILTERS, SORT_OPTIONS, isEligible, sortPrograms, type Filters, type SortKey } from './filters'
 import { isoDate } from './format'
 import type { Program, ProgramsResponse } from './types'
-import { readState, writeState, type AppState } from './urlState'
+import { readState, withCompareIds, writeState, type AppState } from './urlState'
 
 export default function App() {
   const [data, setData] = useState<ProgramsResponse | null>(null)
@@ -41,9 +41,11 @@ export default function App() {
   const toggleOpen = (id: string) => update({ ...state, openId: openId === id ? null : id }, true)
 
   // Ticking programs replaces history like filters do; entering or leaving the
-  // comparison pushes so Back returns to the list.
-  const setCompareIds = (ids: string[]) =>
-    update({ ...state, compareIds: ids, view: ids.length < 2 ? 'list' : view })
+  // comparison pushes, so Back moves between the list and the comparison.
+  const setCompareIds = (ids: string[]) => {
+    const { next, push } = withCompareIds(state, ids)
+    update(next, push)
+  }
   const toggleCompare = (id: string) => setCompareIds(toggleCompareId(compareIds, id))
   const openComparison = () => update({ ...state, view: 'compare' }, true)
   const closeComparison = () => update({ ...state, view: 'list' }, true)

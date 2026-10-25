@@ -52,6 +52,16 @@ export function readState(search: string): AppState {
   }
 }
 
+/**
+ * Applies a new comparison selection. The comparison needs at least 2 programs,
+ * so dropping below that returns to the list. `push` is true when the view
+ * changes, so Back returns to the comparison instead of skipping past it.
+ */
+export function withCompareIds(state: AppState, compareIds: string[]): { next: AppState; push: boolean } {
+  const view = compareIds.length < 2 ? 'list' : state.view
+  return { next: { ...state, compareIds, view }, push: view !== state.view }
+}
+
 export function writeState({ filters: f, sort, openId, compareIds, view }: AppState): string {
   const q = new URLSearchParams()
   if (f.amount !== null) q.set('amount', String(f.amount))

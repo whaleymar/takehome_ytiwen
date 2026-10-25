@@ -754,8 +754,17 @@ select {
   border-radius: 999px;
 }
 
+.comparison-head-top {
+  align-self: stretch;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
 .remove-button {
-  padding: 0;
+  flex: none;
+  padding: 2px 0;
   font-size: 13px;
 }
 

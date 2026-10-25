@@ -5,6 +5,14 @@ A single-page tool for sales reps. Enter what the borrower has told you and see 
 - `server/`: FastAPI. Loads `data/programs.csv` once at startup, converts it to clean typed JSON, and serves it at `GET /api/programs`.
 - `web/`: React + TypeScript + Vite. Loads the whole dataset once, then filters and sorts it in the browser. Filters, sort, and the expanded program are stored in the URL, so a link reproduces the same view.
 
+**Results list:** filtered to a $250K restaurant loan for a borrower with good credit. Each card shows rates, terms, eligibility requirements, and any special requirements; tick **Compare** to add it to a comparison.
+
+![Results list filtered by loan amount, business type, and credit tier](docs/screenshots/list-view.png)
+
+**Comparison:** up to 3 programs side by side. In each row, the value most favorable to the borrower is highlighted in green.
+
+![Side-by-side comparison of three loan programs](docs/screenshots/comparison-view.png)
+
 ## Running locally
 
 Requires [uv](https://docs.astral.sh/uv/) and Node 20+.

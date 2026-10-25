@@ -28,3 +28,7 @@ export function isoDate(iso: string): string {
 }
 
 export const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+
+export function businessTypes(types: string[] | null): string {
+  return types === null ? 'All types' : `${types.join(', ')} only`
+}

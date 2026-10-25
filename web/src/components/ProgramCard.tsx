@@ -1,5 +1,6 @@
 import type { KeyboardEvent } from 'react'
-import { capitalize, isoDate, money, moneyFull, percent, term, years } from '../format'
+import { MAX_COMPARE } from '../compare'
+import { businessTypes, capitalize, isoDate, money, moneyFull, percent, term, years } from '../format'
 import type { Program } from '../types'
 
 interface Props {
@@ -7,13 +8,21 @@ interface Props {
   expanded: boolean
   recentUpdateDays: number
   onToggle: () => void
+  compared: boolean
+  /** True when the comparison is full and this program isn't in it. */
+  compareFull: boolean
+  onToggleCompare: () => void
 }
 
-function businessTypes(p: Program): string {
-  return p.eligibleBusinessTypes === null ? 'All types' : `${p.eligibleBusinessTypes.join(', ')} only`
-}
-
-export default function ProgramCard({ program: p, expanded, recentUpdateDays, onToggle }: Props) {
+export default function ProgramCard({
+  program: p,
+  expanded,
+  recentUpdateDays,
+  onToggle,
+  compared,
+  compareFull,
+  onToggleCompare,
+}: Props) {
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
@@ -22,7 +31,19 @@ export default function ProgramCard({ program: p, expanded, recentUpdateDays, on
   }
 
   return (
-    <article id={p.id} className={`card${expanded ? ' card-expanded' : ''}`}>
+    <article id={p.id} className={`card${expanded ? ' card-expanded' : ''}${compared ? ' card-compared' : ''}`}>
+      {/* Kept outside the clickable summary so ticking it never expands the card. */}
+      <label
+        className="compare-toggle"
+        title={compareFull ? `You can compare up to ${MAX_COMPARE} programs` : undefined}
+      >
+        <input type="checkbox" checked={compared} disabled={compareFull} onChange={onToggleCompare} />
+        Compare
+        <span className="sr-only">
+          {p.lender} {p.programType}
+        </span>
+      </label>
+
       <div
         className="card-summary"
         role="button"
@@ -73,7 +94,7 @@ export default function ProgramCard({ program: p, expanded, recentUpdateDays, on
             <span>In business</span> {years(p.minYearsInBusiness)}
           </li>
           <li>
-            <span>Business</span> {businessTypes(p)}
+            <span>Business</span> {businessTypes(p.eligibleBusinessTypes)}
           </li>
           <li>
             <span>Collateral</span> {capitalize(p.collateral)}
@@ -91,7 +112,7 @@ export default function ProgramCard({ program: p, expanded, recentUpdateDays, on
           <Detail label="SBA guarantee" value={`${p.sbaGuaranteePct}%`} />
           <Detail label="Min credit score" value={`${p.minCreditScore} (${capitalize(p.creditTier)} tier)`} />
           <Detail label="Min years in business" value={String(p.minYearsInBusiness)} />
-          <Detail label="Eligible businesses" value={businessTypes(p)} />
+          <Detail label="Eligible businesses" value={businessTypes(p.eligibleBusinessTypes)} />
           <Detail label="Collateral required" value={capitalize(p.collateral)} />
           <Detail
             label="Max existing debt ratio"

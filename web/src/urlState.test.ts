@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { EMPTY_FILTERS, type Filters } from './filters'
 import { DEFAULT_SORT, readState, writeState, type AppState } from './urlState'
 
-const EMPTY_STATE: AppState = { filters: EMPTY_FILTERS, sort: DEFAULT_SORT, openId: null }
+const EMPTY_STATE: AppState = { filters: EMPTY_FILTERS, sort: DEFAULT_SORT, openId: null, compareIds: [], view: 'list' }
 const f = (overrides: Partial<Filters>): Filters => ({ ...EMPTY_FILTERS, ...overrides })
 
 describe('readState', () => {
@@ -19,6 +19,8 @@ describe('readState', () => {
       }),
       sort: 'term',
       openId: 'abc',
+      compareIds: [],
+      view: 'list',
     })
   })
 
@@ -27,7 +29,7 @@ describe('readState', () => {
   })
 
   it('treats empty values as unset', () => {
-    expect(readState('?amount=&business=&years=&tier=&score=&program=&sort=&open=')).toEqual(EMPTY_STATE)
+    expect(readState('?amount=&business=&years=&tier=&score=&program=&sort=&open=&compare=&view=')).toEqual(EMPTY_STATE)
   })
 
   it('treats whitespace-only values as unset', () => {
@@ -95,6 +97,37 @@ describe('readState', () => {
   })
 })
 
+describe('comparison params', () => {
+  it('reads compare ids in order', () => {
+    expect(readState('?compare=b&compare=a').compareIds).toEqual(['b', 'a'])
+  })
+
+  it('drops empty and duplicate ids', () => {
+    expect(readState('?compare=a&compare=&compare=+&compare=a&compare=b').compareIds).toEqual(['a', 'b'])
+  })
+
+  it('keeps at most 3 ids', () => {
+    expect(readState('?compare=a&compare=b&compare=c&compare=d').compareIds).toEqual(['a', 'b', 'c'])
+  })
+
+  it('opens the comparison view with 2 or more ids', () => {
+    expect(readState('?compare=a&compare=b&view=compare').view).toBe('compare')
+  })
+
+  it.each([
+    ['one id', '?compare=a&view=compare'],
+    ['no ids', '?view=compare'],
+    ['unknown view', '?compare=a&compare=b&view=grid'],
+    ['no view param', '?compare=a&compare=b'],
+  ])('shows the list with %s', (_, search) => {
+    expect(readState(search).view).toBe('list')
+  })
+
+  it('writes selection without view while on the list', () => {
+    expect(writeState({ ...EMPTY_STATE, compareIds: ['a', 'b'] })).toBe('?compare=a&compare=b')
+  })
+})
+
 describe('writeState', () => {
   it('omits defaults', () => {
     expect(writeState(EMPTY_STATE)).toBe('')
@@ -115,6 +148,8 @@ describe('writeState', () => {
       }),
       sort: 'turnaround',
       openId: 'first-national-bank--sba-express',
+      compareIds: ['a', 'b', 'c'],
+      view: 'compare',
     }
     expect(readState(writeState(state))).toEqual(state)
   })

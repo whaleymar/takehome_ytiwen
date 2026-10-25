@@ -7,9 +7,11 @@ interface Props {
   filters: Filters
   facets: ProgramsResponse['facets']
   onChange: (filters: Filters) => void
+  /** Pinned to the top while scrolling results; the comparison needs the room. */
+  sticky?: boolean
 }
 
-export default function FilterBar({ filters, facets, onChange }: Props) {
+export default function FilterBar({ filters, facets, onChange, sticky = true }: Props) {
   const set = (patch: Partial<Filters>) => onChange({ ...filters, ...patch })
 
   const toggleProgramType = (type: string) =>
@@ -20,7 +22,7 @@ export default function FilterBar({ filters, facets, onChange }: Props) {
     })
 
   return (
-    <section className="filters" aria-label="Borrower details">
+    <section className={`filters${sticky ? ' filters-sticky' : ''}`} aria-label="Borrower details">
       <div className="filter-row">
         <label className="field">
           <span className="field-label">Loan amount</span>
